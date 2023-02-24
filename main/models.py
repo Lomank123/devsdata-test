@@ -6,7 +6,7 @@ class Event(models.Model):
     title = models.CharField(max_length=255, verbose_name="Title")
     start_at = models.DateTimeField(verbose_name="Start at")
     end_at = models.DateTimeField(verbose_name="End at")
-    thumbnail = models.ImageField(verbose_name="Thumbnail")
+    thumbnail = models.ImageField(verbose_name="Thumbnail", blank=True)
     users = models.ManyToManyField(
         User, related_name="events", blank=True, verbose_name="Users")
 

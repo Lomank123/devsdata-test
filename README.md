@@ -1,7 +1,16 @@
 # devsdata-test
 
 
+## Docker setup
+
+- If you have Docker run these commands (Caution: I didn't have time to test it properly so errors may occur):
+```
+cd path/to/root
+docker-compose up -d --build
+```
+
 ## Installation
+
 
 - Create and activate venv using following commands:
 ```
@@ -40,6 +49,8 @@ python3 manage.py runserver
 
 
 ## Description
+
+- When click on "Attend" button you will receive reservation code, but if you update the page it won't display, so be cautious. To find this code visit `http://127.0.0.1:8000/admin`, login as admin and open "Reservation codes" page on the left.
 
 Project uses Django and REST Framework, main logic is located in `main/views.py`. There you can expext 2 important view classes:
 

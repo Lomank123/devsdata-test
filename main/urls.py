@@ -9,7 +9,10 @@ from main.views import (
 
 urlpatterns = [
     # Default
-    path("all/", AllEventsView.as_view(), name="all-events"),
+    path("", AllEventsView.as_view(), name="all-events"),
+]
+
+api_urlpatterns = [
     # API
     path("fetch-all/", EventListView.as_view(), name="event-list"),
     path("register/", RegisterToEventView.as_view(), name="register-to-event"),

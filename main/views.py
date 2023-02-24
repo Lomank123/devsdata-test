@@ -7,6 +7,7 @@ from rest_framework.exceptions import APIException, NotFound
 from rest_framework.generics import GenericAPIView, ListAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from django.db.models import Exists, OuterRef
 
 from main.consts import CANNOT_CANCEL_ERROR_MSG
 from main.models import Event, ReservationCode
@@ -33,7 +34,12 @@ class AllEventsView(LoginRequiredMixin, TemplateView):
 class EventListView(ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = EventSerializer
-    queryset = Event.objects.all()
+
+    def get_queryset(self):
+        return Event.objects.annotate(is_user=Exists(
+            ReservationCode.objects.filter(
+                event_id=OuterRef("pk"), user=self.request.user, is_active=True)
+        ))
 
 
 class RegisterToEventView(GenericAPIView):
@@ -71,16 +77,20 @@ class CancelRegistrationView(GenericAPIView):
         user = request.user
         code = serializer.data.get("code")
         # Find and update reg code data
-        reg_code = ReservationCode.objects.filter(user=user, code=code).first()
+        reg_code = ReservationCode.objects.filter(
+            user=user, code=code, is_active=True).first()
         if reg_code is None:
-            raise NotFound
+            raise NotFound(code=status.HTTP_400_BAD_REQUEST)
         reg_code.is_active = False
         reg_code.save(update_fields=["is_active"])
 
         # Update event data
         event = reg_code.event
         if not event.can_be_cancelled:
-            raise APIException(detail=CANNOT_CANCEL_ERROR_MSG)
+            raise APIException(
+                detail=CANNOT_CANCEL_ERROR_MSG,
+                code=status.HTTP_400_BAD_REQUEST
+            )
         # Update m2m field
         event.users.remove(user)
         event.save()

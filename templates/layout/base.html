@@ -1,0 +1,45 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta http-equiv="Content-Type" content="text/html"; charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
+    <!-- Optional CSS -->
+    {% block styles %}
+    {% endblock styles %}
+		<!-- Title -->
+    <title>Events | {% block title %}{% endblock title %}</title>
+  </head>
+
+  <body>
+    <div>
+      <div></div>
+      {% if user.is_authenticated %} 
+        <span class=>Welcome, {{ user.username }}</span>
+        {% if user.is_staff or user.is_superuser %}
+          <a href="{% url 'admin:index' %}">Admin Dashboard</a>
+        {% endif %}
+        <a href="{% url 'logout' %}">Log out</a>
+      {% else %}
+        <a href="{% url 'login' %}">Sign in</a>
+      {% endif %}
+    </div>
+
+    <div class="container">
+      {% block content %}
+      {% endblock content %}
+    </div>
+  </body>
+
+  <!-- Scripts -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Optional JavaScript -->
+  {% block scripts %}
+  {% endblock scripts %}
+</html>

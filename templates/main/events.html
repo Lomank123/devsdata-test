@@ -1,0 +1,20 @@
+{% extends 'layout/base.html' %}
+{% load static %}
+
+{% block styles %}
+<link rel="stylesheet" type="text/css" href="{% static 'main/styles.css' %}">
+{% endblock styles %}
+
+{% block title %}All events{% endblock title %}
+
+{% block content %}
+
+<div>
+  <h2>All events</h2>
+</div>
+
+{% endblock content %}
+
+{% block scripts %}
+<script src="{% static 'main/main.js' %}"></script>
+{% endblock scripts %}

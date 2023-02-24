@@ -1,13 +1,14 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView, LogoutView
-from django.views.generic.base import TemplateView
-from rest_framework.generics import GenericAPIView, ListAPIView
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
 from django.db import transaction
-from rest_framework.exceptions import NotFound
+from django.views.generic.base import TemplateView
 from rest_framework import status
+from rest_framework.exceptions import APIException, NotFound
+from rest_framework.generics import GenericAPIView, ListAPIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
+from main.consts import CANNOT_CANCEL_ERROR_MSG
 from main.models import Event, ReservationCode
 from main.serializers import (
     CancelRegistrationSerializer,
@@ -62,6 +63,7 @@ class CancelRegistrationView(GenericAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = CancelRegistrationSerializer
 
+    @transaction.atomic
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -77,7 +79,10 @@ class CancelRegistrationView(GenericAPIView):
 
         # Update event data
         event = reg_code.event
-        event.remove(user)
+        if not event.can_be_cancelled:
+            raise APIException(detail=CANNOT_CANCEL_ERROR_MSG)
+        # Update m2m field
+        event.users.remove(user)
         event.save()
 
         return Response(data=dict())

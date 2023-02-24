@@ -1,4 +1,6 @@
 from rest_framework import serializers
+
+from main.consts import CANNOT_CANCEL_ERROR_MSG
 from main.models import Event, ReservationCode
 
 
@@ -26,5 +28,5 @@ class CancelRegistrationSerializer(serializers.Serializer):
 
     def validate_can_be_cancelled(self, value):
         if not value:
-            raise serializers.ValidationError("Can't be cancelled.")
+            raise serializers.ValidationError(CANNOT_CANCEL_ERROR_MSG)
         return value

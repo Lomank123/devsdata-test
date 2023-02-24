@@ -1,5 +1,9 @@
-from django.db import models
+import random
+import string
+
 from django.contrib.auth.models import User
+from django.db import models
+from django.utils import timezone
 
 
 class Event(models.Model):
@@ -18,6 +22,14 @@ class Event(models.Model):
     def __str__(self):
         return self.title
 
+    @property
+    def can_be_cancelled(self):
+        no_longer_difference = self.end_at - self.start_at
+        no_longer = 0 < no_longer_difference.days <= 2
+        not_later_difference = self.start_at - timezone.now()
+        not_later = 0 < not_later_difference.days >= 2
+        return no_longer and not_later
+
 
 class ReservationCode(models.Model):
     user = models.ForeignKey(
@@ -32,7 +44,14 @@ class ReservationCode(models.Model):
         related_name="codes",
         verbose_name="Event",
     )
-    code = models.CharField(max_length=16, verbose_name="Code")
+    code = models.CharField(max_length=16, blank=True, verbose_name="Code")
+    is_active = models.BooleanField(default=True, verbose_name="Is active")
+
+    def save(self, *args, **kwargs):
+        if not self.code:
+            self.code = ''.join(random.choice(
+                string.ascii_lowercase + string.digits) for _ in range(16))
+        super().save(*args, **kwargs)
 
     class Meta:
         ordering = ['-id']
